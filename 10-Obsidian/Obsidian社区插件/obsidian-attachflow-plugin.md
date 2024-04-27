@@ -1,7 +1,7 @@
 ---
 uid: 20240328161145
 title: Obsidian AttachFlow 插件：丝滑顺畅地处理 Obsidian 文档中的内嵌附件
-tags: [obsidian插件, 编辑体验]
+tags: [Obsidian插件, 编辑体验]
 description: 实时编辑或阅读模式下，通过简单的右键菜单，轻松管理文档中的内嵌附件（图片、视频，录音，文件...），还可以直接拖拽调整图片大小。
 author: yaozhuwa
 type: other
@@ -16,14 +16,14 @@ modified: 20240402195843
 > - 插件名称：AttachFlow
 > - 插件作者：yaozhuwa
 > - 插件说明：实时编辑或阅读模式下，通过简单的右键菜单，轻松管理文档中的内嵌附件（图片、视频，录音，文件...），还可以直接拖拽调整图片大小。
-> - 插件分类：['obsidian 插件 ', ' 编辑工具 ']
-> - 项目地址：[点我访问](https://github.com/Yaozhuwa/AttachFlow)
+> - 插件分类：['Obsidian 插件 ', ' 编辑工具 ']
+> - 项目地址：[点我访问](https://GitHub.com/Yaozhuwa/AttachFlow)
 
 ## 插件功能
 
 插件主要提供了两样功能：图片/附件的右键菜单、拖拽调节图片大小。AttachFlow 这个名字，是 Attachment 和 Flow 的结合，目标是丝滑顺畅地处理 Obsidian 文档中的附件。
 
-插件视频介绍： <https://b23.tv/DMw7zHu>
+[插件视频介绍](https://www.bilibili.com/video/BV1xM4m1R7u2/)
 
 ### 图片/附件右键菜单
 
@@ -52,11 +52,11 @@ modified: 20240402195843
 
 #### 拷贝文件到剪贴板
 
-其他插件（如 [[copy-url-in-preview_readme|obsidian-copy-url-in-preview]]、[[obsidian-image-toolkit|Obsidian Image Toolkit]]）的拷贝图片菜单，实际上是把图片重绘，然后复制到剪贴板，拷贝到剪贴板的图像实际上和原图不同，如 **GIF 拷贝后会得到 PNG 图片**。
+其他插件（如 [[copy-url-in-preview_readme|Obsidian-copy-url-in-preview]]、[[Obsidian-image-toolkit|Obsidian Image Toolkit]]）的拷贝图片菜单，实际上是把图片重绘，然后复制到剪贴板，拷贝到剪贴板的图像实际上和原图不同，如 **GIF 拷贝后会得到 PNG 图片**。
 
 这样做还有一个坏处就是，你拷贝了仓库中的一张图片，粘贴到另一个文档的时候，粘贴的图片会以一个新的名字保存到本地。而实际上你想要的是两个地方都是引用同一张图片的链接，**导致附件的冗余**。
 
-下面是 [[obsidian-image-toolkit]] 插件拷贝粘贴图片的效果：
+下面是 [[Obsidian-image-toolkit]] 插件拷贝粘贴图片的效果：
 
 ![image-toolkit-copy](https://cdn.pkmer.cn/images/202404021955801.gif!pkmer)
 
