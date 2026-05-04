@@ -7,7 +7,7 @@ author: 熊猫别熬夜
 type: other
 draft: false
 editable: false
-modified: 20260504232117
+modified: 20260505003543
 ---
 
 # Dataviewjs 交互式文件夹层级导航 by AnyBlock
@@ -27,7 +27,7 @@ modified: 20260504232117
 - **⚡ 路径快速跳转** — 点击路径按钮，通过 Suggester 快速跳转到任意文件夹。
 - **🔄 状态保持** — 浏览路径、深度、模式自动保存，刷新页面后恢复。
 
-## 使用说明
+### 使用说明
 
 1. 确保已安装并启用 **Dataview** 和 **AnyBlock** 插件。
 2. 将此笔记放置在任何位置，进入阅读/实时预览模式即可看到交互控件。
@@ -37,6 +37,7 @@ modified: 20260504232117
     - **导航** — ⬅️ 后退 / ➡️ 前进。
     - **深度** — +/- 控制展开层级。
     - **模式** — 切换 AnyBlock 渲染模式。
+    - **搜索** — 点击🔍展开搜索栏，输入关键词（空格分隔多个词）后回车或点击「搜索」，当前文件夹下仅显示匹配的文件夹和笔记；点击「清空」或再次点击 🔍 收起可恢复完整视图。
 4. 点击文件夹名称前的 emoji 图标（🏠/↩️/📁），即可聚焦到该文件夹。
 5. 自动检测 FolderNote 的笔记，对应文件夹名称显示未链接效果，点击即可打开
 
@@ -46,8 +47,7 @@ modified: 20260504232117
 
 ## Dataviewjs 代码
 
-~~~
-
+````
 ```dataviewjs
 // --- 1. 基础配置区 ---
 const config = {
@@ -81,7 +81,8 @@ if (!window.anyblockQueryData) {
         currentModeIndex: config.defaultModeIndex,
         displayFilter: "folderOnly",
         history: [config.defaultFolder],
-        historyIndex: 0
+        historyIndex: 0,
+        searchQuery: ""  // 新增搜索词
     };
 }
 const state = window.anyblockQueryData;
@@ -120,21 +121,24 @@ const displayNames = folderPaths.map(path => (path === "/" ? "🏠 根目录" : 
 const createLabel = (text) => {
     const span = document.createElement("span");
     span.textContent = text;
-    span.style.cssText = `font-size: 1rem; font-weight: bold; margin-left: 5px; color: var(--text-muted);`;
+    span.style.cssText = `font-size: 1rem; font-weight: bold; margin-left: 5px; color: var(--text-muted); white-space: nowrap;`;
     return span;
 };
 
 const controlContainer = document.createElement("div");
 Object.assign(controlContainer.style, {
-    display: "flex", gap: "8px", alignItems: "center", marginBottom: "15px",
-    flexWrap: "wrap", padding: "10px", backgroundColor: "var(--background-secondary)",
+    display: "flex", gap: "8px", alignItems: "center", marginBottom: "5px",
+    flexWrap: "nowrap",
+    overflowX: "auto",
+    whiteSpace: "nowrap",
+    padding: "10px", backgroundColor: "var(--background-secondary)",
     borderRadius: "8px", border: "1px solid var(--background-modifier-border)",
     position: "sticky", top: "0px", zIndex: "100"
 });
 
 // A. 显示选项下拉菜单
 const displaySelect = document.createElement("select");
-Object.assign(displaySelect.style, { padding: "5px", borderRadius: "4px", background: "var(--background-primary)", color: "var(--text-normal)", border: "1px solid var(--background-modifier-border)", cursor: "pointer", fontSize: `${config.fontSizeVar}rem` });
+Object.assign(displaySelect.style, { padding: "5px", borderRadius: "4px", background: "var(--background-primary)", color: "var(--text-normal)", border: "1px solid var(--background-modifier-border)", cursor: "pointer", fontSize: `${config.fontSizeVar}rem`, whiteSpace: "nowrap" });
 config.displayFilterModes.forEach(m => {
     const opt = document.createElement("option"); opt.value = m.value; opt.textContent = m.text;
     if (m.value === state.displayFilter) opt.selected = true;
@@ -151,7 +155,12 @@ const updateBtnUI = (path) => {
     backBtn.style.opacity = backBtn.disabled ? "0.3" : "1";
     forwardBtn.style.opacity = forwardBtn.disabled ? "0.3" : "1";
 };
-Object.assign(pathBtn.style, { flex: "1 1 200px", padding: "6px 10px", borderRadius: "4px", border: "1px solid var(--background-modifier-border)", backgroundColor: "var(--background-primary)", color: "var(--text-normal)", textAlign: "left", cursor: "pointer", fontSize: `${config.fontSizeVar}rem` });
+Object.assign(pathBtn.style, {
+    flex: "1 1 200px", padding: "6px 10px", borderRadius: "4px",
+    border: "1px solid var(--background-modifier-border)", backgroundColor: "var(--background-primary)",
+    color: "var(--text-normal)", textAlign: "left", cursor: "pointer", fontSize: `${config.fontSizeVar}rem`,
+    overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", minWidth: "0"
+});
 pathBtn.onclick = async () => {
     const selected = await app.plugins.plugins.quickadd.api.suggester(displayNames, folderPaths);
     if (selected !== undefined) navigateTo(selected === "/" ? "" : selected);
@@ -159,18 +168,18 @@ pathBtn.onclick = async () => {
 
 // C. 导航组
 const navGroup = document.createElement("div");
-navGroup.style.cssText = "display:flex; gap:4px;";
-const navBtnStyle = `padding: 4px 8px; cursor: pointer; border-radius: 4px; border: 1px solid var(--background-modifier-border); background: var(--background-primary);`;
+navGroup.style.cssText = "display:flex; gap:4px; white-space: nowrap;";
+const navBtnStyle = `padding: 4px 8px; cursor: pointer; border-radius: 4px; border: 1px solid var(--background-modifier-border); background: var(--background-primary); white-space: nowrap;`;
 const backBtn = document.createElement("button"); backBtn.innerHTML = "⬅️"; backBtn.style.cssText = navBtnStyle;
 backBtn.onclick = () => { if (state.historyIndex > 0) { state.historyIndex--; state.currentPath = state.history[state.historyIndex]; saveState(); renderNow(); } };
 const forwardBtn = document.createElement("button"); forwardBtn.innerHTML = "➡️"; forwardBtn.style.cssText = navBtnStyle;
 forwardBtn.onclick = () => { if (state.historyIndex < state.history.length - 1) { state.historyIndex++; state.currentPath = state.history[state.historyIndex]; saveState(); renderNow(); } };
 navGroup.append(backBtn, forwardBtn);
 
-// D. 深度控件 (Stepper)
+// D. 深度控件
 const stepper = document.createElement("div");
-stepper.style.cssText = "display:flex; align-items:center; gap:4px;";
-const bStyle = `padding: 2px 10px; cursor: pointer; border-radius: 4px; border: 1px solid var(--background-modifier-border); background: var(--background-primary); color: var(--text-normal); font-weight: bold;`;
+stepper.style.cssText = "display:flex; align-items:center; gap:4px; white-space: nowrap;";
+const bStyle = `padding: 2px 10px; cursor: pointer; border-radius: 4px; border: 1px solid var(--background-modifier-border); background: var(--background-primary); color: var(--text-normal); font-weight: bold; white-space: nowrap;`;
 const mBtn = document.createElement("button"); mBtn.textContent = "-"; mBtn.style.cssText = bStyle;
 const pBtn = document.createElement("button"); pBtn.textContent = "+"; pBtn.style.cssText = bStyle;
 const dInput = document.createElement("input");
@@ -183,7 +192,7 @@ stepper.append(mBtn, dInput, pBtn);
 
 // E. 模式选择
 const mSelect = document.createElement("select");
-Object.assign(mSelect.style, { padding: "5px", borderRadius: "4px", background: "var(--background-primary)", color: "var(--text-normal)", border: "1px solid var(--background-modifier-border)", cursor: "pointer" });
+Object.assign(mSelect.style, { padding: "5px", borderRadius: "4px", background: "var(--background-primary)", color: "var(--text-normal)", border: "1px solid var(--background-modifier-border)", cursor: "pointer", whiteSpace: "nowrap" });
 config.modes.forEach((m, i) => {
     const opt = document.createElement("option"); opt.value = i; opt.textContent = m.text;
     if (i == state.currentModeIndex) opt.selected = true;
@@ -193,18 +202,114 @@ mSelect.onchange = () => { state.currentModeIndex = mSelect.value; saveState(); 
 
 const refreshBtn = document.createElement("button");
 refreshBtn.innerHTML = "🔄";
-Object.assign(refreshBtn.style, { padding: "6px 10px", borderRadius: "4px", border: "1px solid var(--background-modifier-border)", backgroundColor: "var(--background-primary)", cursor: "pointer" });
+Object.assign(refreshBtn.style, { padding: "6px 10px", borderRadius: "4px", border: "1px solid var(--background-modifier-border)", backgroundColor: "var(--background-primary)", cursor: "pointer", whiteSpace: "nowrap" });
 refreshBtn.onclick = () => renderNow();
 
+// --- 搜索相关 ---
+const searchToggleBtn = document.createElement("button");
+searchToggleBtn.innerHTML = "🔍";
+Object.assign(searchToggleBtn.style, { padding: "6px 10px", borderRadius: "4px", border: "1px solid var(--background-modifier-border)", backgroundColor: "var(--background-primary)", cursor: "pointer", whiteSpace: "nowrap" });
+
+// 搜索行（初始折叠）
+const searchRowContainer = document.createElement("div");
+searchRowContainer.style.cssText = "display:flex; justify-content:center; align-items:center; width: auto; height:0; overflow:hidden; margin-bottom:10px;";
+
+const searchContainer = document.createElement("div");
+searchContainer.style.cssText = "display:flex; justify-content:center; align-items:center; gap:3px; width:0; opacity:0; overflow:hidden; padding:5px 0;";
+
+const searchInput = document.createElement("input");
+searchInput.type = "text";
+searchInput.placeholder = "搜索文件夹/笔记（空格分隔关键词）";
+Object.assign(searchInput.style, {
+    fontSize: `${config.fontSizeVar}rem`,
+    color: "var(--text-normal)",
+    backgroundColor: "var(--background-primary)",
+    border: "1px solid var(--background-modifier-border)",
+    borderRadius: "4px",
+    padding: "3px 8px",
+    outline: "none",
+    flex: "1",
+    minWidth: "120px"
+});
+
+const clearSearchBtn = document.createElement("button");
+clearSearchBtn.textContent = "清空";
+Object.assign(clearSearchBtn.style, { border: "none", margin: "0", fontSize: `${config.fontSizeVar}rem`, color: "var(--text-on-accent)", cursor: "pointer", padding: "5px 6px", backgroundColor: "var(--interactive-accent)", borderRadius: "4px", whiteSpace: "nowrap" });
+
+const searchExecuteBtn = document.createElement("button");
+searchExecuteBtn.textContent = "搜索";
+Object.assign(searchExecuteBtn.style, { border: "none", margin: "0", fontSize: `${config.fontSizeVar}rem`, color: "var(--text-on-accent)", cursor: "pointer", padding: "5px 6px", backgroundColor: "var(--interactive-accent)", borderRadius: "4px", whiteSpace: "nowrap" });
+
+let searchExpanded = false;
+
+const setSearchUI = (expanded) => {
+    searchExpanded = expanded;
+    if (expanded) {
+        searchRowContainer.style.height = "auto";
+        searchContainer.style.width = "100%";
+        searchContainer.style.opacity = "1";
+        searchToggleBtn.style.backgroundColor = "var(--interactive-accent)";
+        searchToggleBtn.style.color = "var(--text-on-accent)";
+        searchInput.focus();
+    } else {
+        searchRowContainer.style.height = "0";
+        searchContainer.style.width = "0";
+        searchContainer.style.opacity = "0";
+        searchToggleBtn.style.backgroundColor = "var(--background-primary)";
+        searchToggleBtn.style.color = "var(--text-normal)";
+    }
+};
+
+searchToggleBtn.onclick = () => setSearchUI(!searchExpanded);
+
+const executeSearch = () => {
+    const query = searchInput.value.trim();
+    state.searchQuery = query;
+    saveState();
+    renderNow();
+};
+
+clearSearchBtn.onclick = () => {
+    searchInput.value = "";
+    state.searchQuery = "";
+    saveState();
+    renderNow();
+};
+
+searchExecuteBtn.onclick = executeSearch;
+searchInput.onkeypress = (e) => {
+    if (e.key === "Enter") executeSearch();
+};
+
+// 组装搜索
+searchContainer.append(searchInput, clearSearchBtn, searchExecuteBtn);
+searchRowContainer.appendChild(searchContainer);
+
+// 恢复搜索框状态和内容
+if (state.searchQuery) {
+    searchInput.value = state.searchQuery;
+}
+
+// 组装控制栏
 controlContainer.append(
     createLabel("显示:"), displaySelect,
     createLabel("路径:"), pathBtn,
     createLabel("导航:"), navGroup,
     createLabel("深度:"), stepper,
     createLabel("模式:"), mSelect,
-    refreshBtn
+    refreshBtn,
+    searchToggleBtn
 );
-dv.container.appendChild(controlContainer);
+
+// 包装控制栏和搜索行
+const wrapperContainer = document.createElement("div");
+wrapperContainer.append(controlContainer, searchRowContainer);
+dv.container.appendChild(wrapperContainer);
+
+// 如果之前搜索是展开的，恢复展开状态
+if (state.searchQuery) {
+    setSearchUI(true);
+}
 
 const drawArea = document.createElement("div");
 drawArea.style.fontSize = `${config.fontSizeVar}rem`;
@@ -220,6 +325,9 @@ async function renderNow() {
     let root = searchPath === "" ? app.vault.getRoot() : app.vault.getAbstractFileByPath(searchPath);
     
     if (!root) { drawArea.setText("⚠️ 找不到路径: " + state.currentPath); return; }
+    
+    // 解析搜索关键词
+    const keywords = state.searchQuery.trim().split(/\s+/).filter(k => k.length > 0).map(k => k.toLowerCase());
     
     const getSafeLink = (name, path) => `[${name.replace(/\[/g, "\\[").replace(/\]/g, "\\]")}](${encodeURI(path)})`;
     
@@ -238,6 +346,14 @@ async function renderNow() {
         return `<span class="focus-btn" data-path="${targetPath}" style="cursor:pointer;margin-right:4px;">${emoji}</span>${link}`;
     };
     
+    // 检查路径是否匹配所有关键词
+    const isMatch = (path) => {
+        if (keywords.length === 0) return true;
+        const lowerPath = path.toLowerCase();
+        return keywords.every(kw => lowerPath.includes(kw));
+    };
+    
+    // 修改后的getTree，增加关键词过滤
     const getTree = (folder, d, startD) => {
         if (d > parseInt(state.currentDepth) || !folder.children) return "";
         const space = " ".repeat((d - startD) * 4);
@@ -247,9 +363,31 @@ async function renderNow() {
             .sort((a, b) => a.name.localeCompare(b.name))
             .map(c => {
                 const hasNote = folderNoteMap.has(c.path);
-                if (state.displayFilter === "folderNoteOnly" && !hasNote) return "";
                 const subTree = getTree(c, d + 1, startD);
-                return `${space}- ${getName(c, false)}\n${subTree}`;
+                
+                // 关键词过滤逻辑
+                const selfMatch = isMatch(c.path);
+                const hasMatchingDescendant = subTree !== "";
+                
+                // 确定是否展示该文件夹行
+                let showFolder = false;
+                if (keywords.length > 0) {
+                    // 搜索模式下：自身匹配或后代有匹配项
+                    showFolder = selfMatch || hasMatchingDescendant;
+                } else {
+                    // 无搜索：沿用原有逻辑
+                    if (state.displayFilter === "folderNoteOnly") {
+                        showFolder = hasNote || subTree !== "";
+                    } else {
+                        showFolder = true; // folderOnly 或 showFiles 均显示所有文件夹（showFiles会额外处理文件）
+                    }
+                }
+                
+                if (!showFolder) return "";
+                
+                // 生成该文件夹行
+                const folderLine = `${space}- ${getName(c, false)}\n`;
+                return folderLine + subTree;
             });
         
         let subFiles = [];
@@ -258,12 +396,39 @@ async function renderNow() {
             subFiles = Array.from(folder.children)
                 .filter(c => !c.children && c.extension === 'md' && (!folderNote || c.path !== folderNote.path))
                 .sort((a, b) => a.name.localeCompare(b.name))
-                .map(c => `${space}- 📄 ${getSafeLink(c.basename, c.path)}\n`);
+                .map(c => {
+                    const match = isMatch(c.path);
+                    if (keywords.length > 0 && !match) return "";
+                    return `${space}- 📄 ${getSafeLink(c.basename, c.path)}\n`;
+                });
         }
-        return subFolders.concat(subFiles).join("");
+        
+        return subFolders.concat(subFiles).filter(s => s !== "").join("");
     };
     
-    let md = mode.noRoot ? getTree(root, 1, 1) : `- ${getName(root, true)}\n` + getTree(root, 1, 0);
+    let md = "";
+    if (mode.noRoot) {
+        md = getTree(root, 1, 1);
+    } else {
+        const rootName = getName(root, true);
+        const rootMatch = isMatch(root.path);
+        if (keywords.length > 0 && !rootMatch) {
+            // 根不匹配，但若子树有内容仍显示根（否则空）
+            const subTree = getTree(root, 1, 0);
+            if (subTree.trim() === "") {
+                md = "";
+            } else {
+                md = `- ${rootName}\n${subTree}`;
+            }
+        } else {
+            md = `- ${rootName}\n` + getTree(root, 1, 0);
+        }
+    }
+    
+    if (keywords.length > 0 && md.trim() === "") {
+        drawArea.innerHTML = `<p style="text-align:center; color:var(--text-muted);">🔍 没有找到匹配 “${state.searchQuery}” 的文件夹或笔记</p>`;
+        return;
+    }
     
     const code = `\`\`\`anyblock\n${mode.value}\n${md.trimEnd()}\n\`\`\``;
     await obsidian.MarkdownRenderer.renderMarkdown(code, drawArea, "", dv.component);
@@ -279,7 +444,7 @@ async function renderNow() {
 
 renderNow();
 ```
-~~~
+````
 
 ### 配置说明
 
@@ -495,7 +660,6 @@ renderNow();
   }
 }
 ```
-
 
 ## ## Tip：配合 Modal opener 插件
 
