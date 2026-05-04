@@ -18,6 +18,11 @@ modified: 20260505003543
 
 ![260504_Dataviewjs：交互式文件夹层级导航 by AnyBlock](https://cdn.pkmer.cn/images/File-20260504220526256.png!pkmer)
 
+并且支持关键词筛选功能，能够根据关键词的筛选出特定文件夹或笔记：
+
+![260504_Dataviewjs：交互式文件夹层级导航 by AnyBlock](https://cdn.pkmer.cn/images/File-20260505004405574.png!pkmer)
+
+
 ### 功能特性
 
 - **📂 文件夹层级浏览** — 从根目录开始，任意展开/聚焦子文件夹，支持前进/后退导航。
