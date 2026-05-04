@@ -63,6 +63,7 @@ const config = {
     maxDepthLimit: 10,
     fontSizeVar: 1,
     modes: [
+        { text: "原始列表", value: "", noRoot: false },
         { text: "节点导图", value: "[list2node]", noRoot: false },
         { text: "极简导图", value: "[list2node|addClass(min)]", noRoot: false },
         { text: "Markmap", value: "[list2markmap]", noRoot: false },
@@ -75,7 +76,7 @@ const config = {
         { text: "📝 显示笔记", value: "showFiles" },
         { text: "📑 仅 FolderNote", value: "folderNoteOnly" }
     ],
-    defaultModeIndex: 1
+    defaultModeIndex: 2
 };
 
 // --- 2. 全局状态 ---
