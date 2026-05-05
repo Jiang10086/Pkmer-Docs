@@ -676,3 +676,7 @@ renderNow();
 具体配置如下：
 
 ![260504_Dataviewjs：交互式文件夹层级导航 by AnyBlock](https://cdn.pkmer.cn/images/File-20260505001109455.png!pkmer)
+
+## 写在最后
+
+感谢 Anyblock 插件的伟大，Anyblock 的功能不止如此，可以根据自己的需要和设定添加其他的视图模式。
