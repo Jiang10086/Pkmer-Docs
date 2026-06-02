@@ -1,7 +1,9 @@
 ---
-uid: 20260410105545
+uid: 20260410105546
 title: QuickAdd 脚本更新说明 - 新增标题分割&关联笔记重组的功能
-tags: [笔记重组, quickadd脚本]
+tags:
+  - 笔记重组
+  - quickadd脚本
 description: QuickAdd 脚本更新说明 - 新增标题分割&关联笔记重组的功能
 author: 熊猫别熬夜
 type: other
