@@ -7,7 +7,7 @@ author: PKMer
 type: other
 draft: false
 editable: false
-modified: 20260107002410
+modified: 20260610215809
 ---
 
 # Obsidian 社区周报
@@ -20,7 +20,8 @@ modified: 20260107002410
 
 ## 2026
 
-- [[2026-05-31-Obsidian Weekly]]（Lastest! ）
+- [[2026-06-07-Obsidian Weekly]]（Lastest! ）
+- [[2026-05-31-Obsidian Weekly]]
 - [[2026-05-24-Obsidian Weekly]]
 - [[2026-05-17-Obsidian Weekly]]
 - [[2026-04-25-Obsidian Weekly]]
